@@ -1,6 +1,8 @@
 # scripts-conversation-acoustic-analysis
 code to analyze audio files of converations
+
 Code
+
     scrape_CF.py                download the wav files from the CallFriend corpus
     scrape_CH.py                download the wav files from the CallHome corpus
     code to create same_pitch.csv
@@ -24,6 +26,7 @@ Code
     graphs, tables.R            graphs and tables
 
 Manually created files
+
     codes.csv 
         information about subcorpora
         logical PK is Code (col H)
