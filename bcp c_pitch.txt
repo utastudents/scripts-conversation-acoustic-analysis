@@ -1,0 +1,1 @@
+bcp Misc.dbo.c_pitch IN C:\temp\pitch_all.csv -f "C:\Users\david\Documents\synced\Dissertation\Corpus\c_pitch.xml" -F 1 -h "TABLOCK" -m 500 -b 100000 -T -S .\ -e "C:\temp\c_pitch_err.txt"
