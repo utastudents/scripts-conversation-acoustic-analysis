@@ -1,0 +1,19 @@
+Corpus,Language,Description,LangCd,RegionLangCd,Mode,Designation,Code,wavDir,TextGridDir,PitchDir
+CallFriend,English (N),Phone calls from the Northern US,eng,eng-n,monomodal,,CFeng-n,D:\CallFriend\eng-n,D:\TextGrid\CallFriend\eng-n,D:\Pitch\CallFriend\eng-n
+CallFriend,English (S),Phone calls from the Southern US,eng,eng-s,monomodal,,CFeng-s,D:\CallFriend\eng-s,D:\TextGrid\CallFriend\eng-s,D:\Pitch\CallFriend\eng-s
+CallFriend,French - Quebecois,Phone calls from French Canada,fra,fra-q,monomodal,,CFfra-q,D:\CallFriend\fra-q,D:\TextGrid\CallFriend\fra-q,D:\Pitch\CallFriend\fra-q
+CallFriend,German,Phone calls in German,deu,deu,monomodal,,CFdeu,D:\CallFriend\deu,D:\TextGrid\CallFriend\deu,D:\Pitch\CallFriend\deu
+CallFriend,Japanese,Phone calls with Japan,jpn,jpn,monomodal,,CFjpn,D:\CallFriend\jpn,D:\TextGrid\CallFriend\jpn,D:\Pitch\CallFriend\jpn
+CallFriend,Spanish,Phone calls with Spanish,spa,spa,monomodal,,CFspa,D:\CallFriend\spa,D:\TextGrid\CallFriend\spa,D:\Pitch\CallFriend\spa
+CallFriend,Spanish (C),Phone calls with Caribbean Spanish,spa,spa-c,monomodal,,CFspa-c,D:\CallFriend\spa-c,D:\TextGrid\CallFriend\spa-c,D:\Pitch\CallFriend\spa-c
+CallFriend,Taiwan Mandarin,Phone calls with Mandarin from Taiwan,zho,zho-t,monomodal,,CFzho-t,D:\CallFriend\zho-t,D:\TextGrid\CallFriend\zho-t,D:\Pitch\CallFriend\zho-t
+CallFriend,Mainland Mandarin,Phone calls with Mandarin from Mainland China,zho,zho-m,monomodal,,CFzho-m,D:\CallFriend\zho-m,D:\TextGrid\CallFriend\zho-m,D:\Pitch\CallFriend\zho-m
+CallHome,Arabic,Arabic phone calls,ara,ara,monomodal,,CHara,D:\CallHome\ara,D:\TextGrid\CallHome\ara,D:\Pitch\CallHome\ara
+CallHome,Chinese,Chinese phone calls,zho,zho,monomodal,,CHzho,D:\CallHome\zho,D:\TextGrid\CallHome\zho,D:\Pitch\CallHome\zho
+CallHome,English,English phone calls,eng,eng,monomodal,,CHeng,D:\CallHome\eng,D:\TextGrid\CallHome\eng,D:\Pitch\CallHome\eng
+CallHome,German,German phone calls,deu,deu,monomodal,,CHdeu,D:\CallHome\deu,D:\TextGrid\CallHome\deu,D:\Pitch\CallHome\deu
+CallHome,Japanese,Japanese phone calls,jpn,jpn,monomodal,,CHjpn,D:\CallHome\jpn,D:\TextGrid\CallHome\jpn,D:\Pitch\CallHome\jpn
+CallHome,Spanish,Spanish phone calls,spa,spa,monomodal,,CHspa,D:\CallHome\spa,D:\TextGrid\CallHome\spa,D:\Pitch\CallHome\spa
+GECO,German,German phone calls,deu,deu,monomodal,,GECO-c,D:\GECO\2track\mono,D:\TextGrid\GECO\mono,D:\Pitch\GECO\mono
+CGN,Dutch,Dutch spontaneous telephone dialogues (recorded via a switchboard),nld,nl,monomodal,comp-c,CGNnl-cs,D:\CGN\20151207_CGN_2_0_3\CGN_2.0.3\data\audio\wav\comp-c\nl,D:\TextGrid\CGN\nl-cs,D:\Pitch\CGN\nl-cs
+CGN,Flemish,Flemish spontaneous telephone dialogues (recorded via a switchboard),nld,vl,monomodal,comp-c,CGNvl-cs,D:\CGN\20151207_CGN_2_0_3\CGN_2.0.3\data\audio\wav\comp-c\vl,D:\TextGrid\CGN\vl-cs,D:\Pitch\CGN\vl-cs
