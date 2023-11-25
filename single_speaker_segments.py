@@ -8,7 +8,7 @@ import sys
 import tarfile
 import textgrids
 
-def call_all(codes_csv, params_xlsx, sound_times_csv, sst_csv, trans_csv, tmp_csv):
+def call_all(codes_csv, params_xlsx, sound_times_csv, sst_csv, trans_csv, sss_csv, tmp_csv):
 
     #it would be more efficient to pass the data from one module to the other without writing to files, but this modularity allows validation of intermediate steps
     
@@ -19,7 +19,7 @@ def call_all(codes_csv, params_xlsx, sound_times_csv, sst_csv, trans_csv, tmp_cs
     #analyze the sound times for transitions and create files for the turn times on each channel (sst_csv) and for transitions (trans_csv)
     find_turn_begin(sound_times_csv, sst_csv, trans_csv)
     #create textgrids of transitions to help explain the data
-    trans_textgrids(codes_csv, trans_csv, tmp_csv)
+    trans_textgrids(codes_csv, trans_csv, sss_csv, tmp_csv)
 
 
 def make_tarfile(output_filename, source_dir):
@@ -193,13 +193,17 @@ def find_turn_begin(sound_times_csv, sst_csv, trans_csv):
             first = False
 
 
-def trans_textgrids(codes_csv, trans_csv, tmp_csv):
+def trans_textgrids(codes_csv, trans_csv, sss_csv, tmp_csv):
 
     codes = pd.read_csv(codes_csv)
 
     dtypes = {'subcorpus': str,'params': str, 'conv': str, 'ch': int, 'begin_sound': float, 'end_sound': float, 'begin_turn': float, 'gap': float, 'debug': str}
     df = pd.read_csv(trans_csv,dtype=dtypes, low_memory=False, header = 0)
     #print(df)
+
+    with open(sss_csv, 'w') as sss_file:
+        sss_str = 'subcorpus,params,conv,ch,begin,end\n'
+        sss_file.write(sss_str)
     
     for row, value in df.groupby(['subcorpus','params','conv']).indices.items():
         subcorpus = row[0]
@@ -216,29 +220,44 @@ def create_conv_textgrid(df, conv, dir, tmp_csv, params):
     prev_beg = 0
     prev_end = 0
     prev_overlap = 0
+    
+    with open(sss_csv, 'a') as sss_file:
 
-    #if gap > 0 then subtract it from begin_turn to get beginning of gap, else if overlap we subtract it to get the end
-    #we have to end the previous turn before we log the gap/overlap (if there is one)
-    for index, row in df.iterrows():
+        #if gap > 0 then subtract it from begin_turn to get beginning of gap, else if overlap we subtract it to get the end
+        #we have to end the previous turn before we log the gap/overlap (if there is one)
+        for index, row in df.iterrows():
             
-        if row['gap'] > 0:
-            #don't write record if begin == end
-            if round(prev_beg - prev_overlap,4) != round(row['begin_turn'] - row['gap'],4):
-                trans.append(['single speaker',round(prev_beg - prev_overlap,4),round(row['begin_turn'] - row['gap'],4)])
-            trans.append(['gap',round(row['begin_turn'] - row['gap'],4),round(row['begin_turn'],4)])  
-            prev_overlap = 0
-        elif row['gap'] == 0: 
-            trans.append(['single speaker',round(prev_beg - prev_overlap,4),round(row['begin_turn'],4) ])
-            prev_overlap = 0
-        else:
-            #don't write record if begin == end
-            if round(prev_beg - prev_overlap,4) != round(row['begin_turn'],4):
-                trans.append(['single speaker',round(prev_beg - prev_overlap,4),round(row['begin_turn'],4) ])
-            trans.append(['overlap',round(row['begin_turn'],4),round(row['begin_turn'] - row['gap'],4) ])
-            prev_overlap = row['gap']
-   
-        prev_beg = row['begin_turn']
-        prev_end = row['end_sound']
+            if row['gap'] > 0:
+                #don't write record if begin == end
+                if round(prev_beg - prev_overlap,4) != round(row['begin_turn'] - row['gap'],4):
+                    beg_seg = round(prev_beg - prev_overlap,4)
+                    end_seg = round(row['begin_turn'] - row['gap'],4)
+                    trans.append(['single speaker',beg_seg,end_seg])
+                    sss_str = row.subcorpus + ',' + row.params + ',' + str(row.conv) + ',' + str(int(not(row.ch))) + ',' + str(beg_seg) + ',' + str(end_seg) + '\n'
+                    sss_file.write(sss_str)
+            
+                trans.append(['gap',round(row['begin_turn'] - row['gap'],4),round(row['begin_turn'],4)])  
+                prev_overlap = 0
+            elif row['gap'] == 0: 
+                beg_seg = round(prev_beg - prev_overlap,4)
+                end_seg = round(row['begin_turn'],4)
+                trans.append(['single speaker',beg_seg,end_seg])
+                sss_str = row.subcorpus + ',' + row.params + ',' + str(row.conv) + ',' + str(int(not(row.ch))) + ',' + str(beg_seg) + ',' + str(end_seg) + '\n'
+                sss_file.write(sss_str)
+                prev_overlap = 0
+            else:
+                #don't write record if begin == end
+                if round(prev_beg - prev_overlap,4) != round(row['begin_turn'],4):
+                    beg_seg = round(prev_beg - prev_overlap,4)
+                    end_seg = round(row['begin_turn'],4)
+                    trans.append(['single speaker',beg_seg,end_seg])
+                    sss_str = row.subcorpus + ',' + row.params + ',' + str(row.conv) + ',' + str(int(not(row.ch))) + ',' + str(beg_seg) + ',' + str(end_seg) + '\n'
+                    sss_file.write(sss_str)
+                trans.append(['overlap',round(row['begin_turn'],4),round(row['begin_turn'] - row['gap'],4) ])
+                prev_overlap = row['gap']
+       
+            prev_beg = row['begin_turn']
+            prev_end = row['end_sound']
         
     newdf = pd.DataFrame(trans)
     #shouldn't have to write newdf to a file, but I don't see a textgrids method to process a list
@@ -262,26 +281,30 @@ if __name__ == '__main__':
     sound_times_csv = 'c:\\temp\\sound_times.csv'
     sst_csv = 'c:\\temp\\sound_silence_turn.csv'
     trans_csv = 'c:\\temp\\trans.csv'
+    sss_csv = 'c:\\temp\\sss.csv'
     tmp_csv = 'c:\\temp\\create_tier_tmp.csv'
     #
     nump = len(sys.argv)
     if nump >= 2:
         codes_csv = sys.argv[1]
-    if nump >= 4:
+    if nump >= 3:
         params_xlsx = sys.argv[2]
-    if nump >= 5:
+    if nump >= 4:
         sound_times_csv = sys.argv[3]
-    if nump >= 6:
+    if nump >= 5:
         sst_csv = sys.argv[4]
     if nump >= 6:
         trans_csv = sys.argv[5]
     if nump >= 7:
-        tmp_csv = sys.argv[6]
+        sss_csv = sys.argv[6]
+    if nump >= 8:
+        tmp_csv = sys.argv[7]
     print(codes_csv)
     print(params_xlsx)
     print(sound_times_csv)
     print(sst_csv)
     print(trans_csv)
+    print(sss_csv)
     print(tmp_csv)
     
-    call_all(codes_csv, params_xlsx, sound_times_csv, sst_csv, trans_csv, tmp_csv)
+    call_all(codes_csv, params_xlsx, sound_times_csv, sst_csv, trans_csv, sss_csv, tmp_csv)
