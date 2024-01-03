@@ -24,15 +24,6 @@ ggplot(data=trans,aes(x=gap,linetype=Parameters)) +
 #ggsave(filename="~/synced/dissertation/Corpus/images/trans freqpoly params.jpg" ,device="jpg",width = 6, height = 5,dpi = 300)
 
 ggplot(data=trans[trans$params=='_30_200_1.25',],aes(x=gap)) +
- geom_freqpoly(bins=64) +
- theme_bw() +
- scale_y_continuous(labels = function(x) format(x, scientific = FALSE,big.mark=",")) +
- xlim(-2,2.5) +
- ylab("") +
- xlab("Gap length") +
- facet_wrap(. ~ LangCd, nrow=2,scales="free_y")
-
-ggplot(data=trans[trans$params=='_30_200_1.25',],aes(x=gap)) +
  geom_histogram(bins=64, fill="grey",closed="right", boundary=0) +
  theme_bw() +
  scale_y_continuous(labels = function(x) format(x, scientific = FALSE,big.mark=",")) +
@@ -110,13 +101,6 @@ ggplot(data=conv,aes(y=trans_rate*60, x= LangCd2, fill=LangCd)) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width=0.2,color="white")  
 #ggsave(filename="~/synced/dissertation/Corpus/images/trans rate boxplot reorder, w mean.jpg" ,device="jpg",width = 5, height = 3,dpi = 300)
 
-ggplot(data=conv,aes(y=trans_rate*60, x= LangCd)) +
-  geom_violin(fill="grey",scale="count") +
-  theme_bw() +
-  theme(legend.position = "none") +  
-  scale_y_continuous(name="Transitions per minute") +   
-  scale_x_discrete(name=element_blank()) 
-
 ggplot(data=conv,aes(y=trans_rate * 60, x= LangCd)) +
   theme_bw() +
   stat_summary(fun=mean, geom="point", size=2, shape=1) + 
@@ -141,7 +125,7 @@ df<-sqldf("
 ")
 conv$LangCd3 <-factor(conv$LangCd,levels=df$LangCd,ordered=TRUE )
 #reorder for kw 
-conv$LangCd3a<-factor(conv$LangCd,levels=c('deu','spa','zho','ara','fra','eng','jpn'),ordered=TRUE)
+conv$LangCd3a<-factor(conv$LangCd,levels=c('deu','spa','ara','zho','fra','eng','jpn'),ordered=TRUE)
 
 ggplot(data=conv,aes(y=overlap_trans_ratio, x= LangCd3, fill=LangCd)) +
   geom_boxplot(notch=FALSE) +
@@ -180,11 +164,6 @@ ggplot(data=conv,aes(y=overlap_trans_ratio, x= LangCd3a, fill=LangCd)) +
 # facet_wrap(. ~ LangCd, nrow=2)
 ##ggsave(filename="~/synced/dissertation/Corpus/images/overlap_trans_ratio hist,density.jpg" ,device="jpg",width = 5, height = 3,dpi = 300)
 
-ggplot(data=conv,aes(y=overlap_trans_ratio, x= LangCd)) +
-  geom_violin(fill="grey", scale="count") +
-  theme_bw() +
-  theme(legend.position = "none") +  
-  scale_x_discrete(name=element_blank()) 
 
 #parm=list(shape1=7,shape2=5.5)
 #parm=list(shape1=9,shape2=5)
@@ -211,9 +190,6 @@ ggplot(data=conv,aes(y=overlap_dur_ratio, x= LangCd5, fill=LangCd)) +
   scale_x_discrete(name=element_blank())
 #ggsave(filename="~/synced/dissertation/Corpus/images/overlap_dur_ratio boxplot reorder.jpg" ,device="jpg",width = 5, height = 3,dpi = 300)
 
-#ggplot(data=conv,aes(x=overlap_dur_ratio)) +
-# geom_histogram(bins=20, closed="right", boundary=0) +
-# theme_bw()
 
 #parm=list(shape1=1.5,shape2=6)
 #parm=list(shape1=1.5,shape2=9)
@@ -240,8 +216,6 @@ ggplot(data=conv,aes(y=gap_dur_ratio, x= LangCd4, fill=LangCd)) +
   scale_x_discrete(name=element_blank()) 
 #ggsave(filename="~/synced/dissertation/Corpus/images/gap_dur_ratio boxplot reorder.jpg" ,device="jpg",width = 5, height = 3,dpi = 300)
 
-
-
 ## gap & overlap dur together
 ggplot(data=conv_long[conv_long$Type=='Gap' | conv_long$Type=='Overlap',],aes(y=Duration * 60/conv_length, x= LangCd, color=Type)) +
   theme_bw() +
@@ -251,6 +225,14 @@ ggplot(data=conv_long[conv_long$Type=='Gap' | conv_long$Type=='Overlap',],aes(y=
   ylab("Seconds per minute") +
   theme(legend.position = "none") 
 #ggsave(filename="~/synced/dissertation/Corpus/images/overlap, gap dur by lang.jpg" ,device="jpg",width = 4, height = 3,dpi = 300)
+
+ggplot(data=conv_long[conv_long$Type=='Gap' | conv_long$Type=='Overlap',],aes(y=Duration * 60/conv_length, x= LangCd, color=Type)) +
+  theme_bw() +
+  stat_summary(fun=mean, geom="point", size=2, shape=1) + 
+  stat_summary(fun.data = mean_se, geom = "errorbar")  +
+  xlab("") +
+  ylab("Seconds per minute")  
+#ggsave(filename="~/synced/dissertation/Corpus/images/overlap, gap dur by lang w legend.jpg" ,device="jpg",width = 5, height = 3,dpi = 300)
 
 #mean individual gap/overlap length
 #ggplot(data=conv_long[conv_long$Type=='Gap' | conv_long$Type=='Overlap',],aes(y=Duration * 1000/Count, x= LangCd, color=Type)) +
@@ -367,6 +349,15 @@ ggplot(data=all_minute_long,aes(y=Duration, x= minute, color=Type)) +
   theme(legend.position = "bottom")   
 #ggsave(filename="~/synced/dissertation/Corpus/images/gap, overlap dur by minute.jpg" ,device="jpg",width = 6, height = 4,dpi = 300)
 
+ggplot(data=all_minute_long,aes(y=Duration, x= minute, color=Type)) +
+  theme_bw() +
+  stat_summary(fun=mean, geom="point", size=1, shape=1) + 
+  stat_summary(fun.data = mean_se, geom = "errorbar")  +
+  xlab("Minute") +
+  ylab("Seconds per minute") +
+  facet_wrap(. ~ LangCd, nrow = 2)   
+##ggsave(filename="~/synced/dissertation/Corpus/images/gap, overlap dur by minute, legend right.jpg" ,device="jpg",width = 7, height = 4,dpi = 300)
+
 ggplot(data=all_minute_long,aes(y=Count, x= minute, color=Type)) +
   theme_bw() +
   stat_summary(fun=mean, geom="point", size=1, shape=1) + 
@@ -434,6 +425,40 @@ ggplot(data=(ranef(lmer.min.24reml)$conv),aes(x=minute)) +
 #  ylab("Empirical Quantiles")
 ##ggsave(filename="~/synced/dissertation/Corpus/images/SEP3 50_50 by lang.jpg" ,device="jpg",width = 6, height = 4,dpi = 300)
 
+ggplot(data=sss[sss$tm2<10,],aes(x=tm2)) +
+ geom_histogram(bins = 40, fill="grey",closed="right", boundary=0) +
+ scale_y_continuous(name="Count") +
+ scale_x_continuous(name="Single-speaker segment (s)") +
+ theme_bw()
+
+ggplot(data=sss[sss$tm2<4,],aes(x=tm2)) +
+ geom_histogram(binwidth = 0.01, fill="grey",closed="right", boundary=0) +
+ scale_y_continuous(name="Count") +
+ scale_x_continuous(name="Single-speaker segment (s)") +
+ theme_bw()
+
+#almost a uniform log distribution between 0.2 and 1.9 (actually bimodal, but fairly even in that range)
+ggplot(data=sss[sss$tm2<10 & sss$tm2>0.03,],aes(x=tm2)) +
+ geom_histogram(bins = 50, fill="grey",closed="right", boundary=0) +
+ scale_y_continuous(name="Count") +
+ scale_x_continuous(name="Single-speaker segment (s)",trans='log10',breaks=c(0.03,0.1,0.3,1,3,10)) +
+ theme_bw()
+
+ggplot(data=sss,aes(y=tm2, x= LangCd, fill=LangCd)) +
+  geom_boxplot(notch=FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") +  
+  scale_x_discrete(name=element_blank()) +
+  scale_y_continuous(trans='log10',breaks=c(0.001,0.01,0.1,0.3,1,2,10,100,1000))
+
+#exclude insubstantial segments (those < 1s) and those over 30s (just for readability)
+ggplot(data=sss[sss$tm2>1.0 & sss$tm2<30,],aes(y=tm2, x= LangCd, fill=LangCd)) +
+  geom_boxplot(notch=FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") +  
+  scale_x_discrete(name=element_blank()) +
+  scale_y_continuous(trans='log10')
+
 ##data for tables
 #data summary
 sqldf("select LangCd, count(1), sum(conv_length)
@@ -446,35 +471,35 @@ sqldf("select LangCd, count(1), sum(conv_length)
  group by LangCd")
 
 #trans level
-summary(trans$gap[trans$params=='_30_200_1.25'])
-sd(trans$gap[trans$params=='_30_200_1.25'])
+#table 2 Gap Metrics
+ summary(trans$gap[trans$params=='_30_200_1.25'])
+ sd(trans$gap[trans$params=='_30_200_1.25'])
 
-sqldf("
- select LangCd, avg(gap), stdev(gap), median(gap)
-  from trans
-  where params = '_30_200_1.25'
-  group by LangCd
-")
-
-#mode
-sqldf("select gap,count(1) from trans where params = '_30_200_1.25' group by gap order by 2")
-sqldf("select gap,count(1) from trans where params = '_50_50_1.25' group by gap order by 2")
-sqldf("
- select *
- from
- (
- select LangCd, gap, cnt, max(cnt) over (partition by LangCd) max_cnt
- from
- (
- select LangCd, gap,count(1) cnt
-  from trans 
-  where params = '_30_200_1.25' 
-  group by LangCd, gap 
-  order by 2
- )
- ) 
- where max_cnt = cnt
-")
+ sqldf("
+  select LangCd, avg(gap), stdev(gap), median(gap)
+   from trans
+   where params = '_30_200_1.25'
+   group by LangCd
+ ")
+ #mode
+ sqldf("select gap,count(1) from trans where params = '_30_200_1.25' group by gap order by 2")
+ #sqldf("select gap,count(1) from trans where params = '_50_50_1.25' group by gap order by 2")
+ sqldf("
+  select *
+  from
+  (
+  select LangCd, gap, cnt, max(cnt) over (partition by LangCd) max_cnt
+  from
+  (
+  select LangCd, gap,count(1) cnt
+   from trans 
+   where params = '_30_200_1.25' 
+   group by LangCd, gap 
+   order by 2
+  )
+  ) 
+  where max_cnt = cnt
+ ")
 
 #conv level
 
@@ -504,11 +529,10 @@ sqldf("
 
 summary(conv$overlap_trans_ratio)
 sqldf("
- select LangCd, avg(overlap_trans_ratio)*100 overlap_trans_pct,-- avg(gap_dur_ratio)*100 gap_pct, avg(overlap_dur_ratio)*100 overlap_pct
-     median(overlap_trans_ratio) * 100
+ select LangCd, avg(overlap_trans_ratio),-- avg(gap_dur_ratio), avg(overlap_dur_ratio)
+     median(overlap_trans_ratio)
    from conv
   group by LangCd
-  order by 3 desc
 ")
 
 sqldf("
@@ -520,6 +544,16 @@ sqldf("
   from conv
   group by LangCd
 ")
+
+sqldf("
+ select sum(conv_length) length, 
+    sum(gap_cnt) gap_cnt, sum(overlap_cnt) overlap_cnt, sum(zero_cnt) zero_cnt, sum(trans_cnt) trans_cnt,
+    cast(100 as float) *sum(gap_cnt)/sum(trans_cnt) gap_pct,
+    cast(100 as float) *sum(overlap_cnt)/sum(trans_cnt) overlap_pct,
+    cast(100 as float) *sum(zero_cnt)/sum(trans_cnt) zero_pct
+  from conv
+")
+
 
 #minute
 sqldf("
@@ -658,4 +692,38 @@ ggplot(data=beg_fnl,aes(y=trans_rate*60, x= begfnl)) +
   facet_wrap(. ~ LangCd, nrow = 2) +
   theme(axis.text.x = element_text(angle = 60, vjust = 0.8, hjust=1))
 #ggsave(filename="~/synced/dissertation/Corpus/images/ended begfnl.jpg" ,device="jpg",width = 5, height = 3,dpi = 300)
+
+#sdtc
+all_min_sdtc<-sqldf("
+ select LangCd, conv, stdev(trans_cnt) sdtc, max(trans_cnt) - min(trans_cnt) rngtc, avg(trans_cnt) mntc, median(trans_cnt) mdntc
+  from all_minute
+  group by LangCd, conv
+")
+
+ggplot(data=all_min_sdtc,aes(x=sdtc)) +
+ geom_histogram(bins=16, fill="grey",closed="right", boundary=0) +
+ theme_bw() +
+ xlab("Standard Deviation of Transition Count per Minute") +
+ ylab("Count") +
+ facet_wrap(. ~ LangCd, nrow=2,scales="free_y")
+#ggsave(filename="~/synced/dissertation/Corpus/images/sdtc by lang.jpg" ,device="jpg",width = 5, height = 4,dpi = 300)
+
+sqldf("select LangCd, avg(sdtc), median(sdtc), avg(mntc)
+  from all_min_sdtc group by LangCd
+")
+
+sqldf("select avg(sdtc), median(sdtc), avg(mntc)
+  from all_min_sdtc 
+")
+
+sqldf("select count(1) from all_min_sdtc where sdtc < 10")
+sqldf("select * from all_min_sdtc where sdtc > 15")
+
+#sdtc mode
+for(i in seq_along(levels(all_min_sdtc$LangCd)))
+  {
+  print(levels(all_min_sdtc$LangCd)[i])
+  d<-density(all_min_sdtc$sdtc[all_min_sdtc$LangCd==levels(all_min_sdtc$LangCd)[i]])
+  print(d$x[which.max(d$y)])
+  }
 

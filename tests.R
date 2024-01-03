@@ -29,12 +29,16 @@ lmer.min.tr.3 <- lmer(trans_cnt ~ LangCd + (1 | conv),   data = all_minute, cont
 lmer.min.tr.4 <- lmer(trans_cnt ~ LangCd + min1 + (1 | conv),   data = all_minute, REML="FALSE", control=opt)
 lmer.min.tr.5 <- lmer(trans_cnt ~ LangCd + min4 + (1 | conv),   data = all_minute, REML="FALSE", control=opt)
 lmer.min.tr.6 <- lmer(trans_cnt ~ minute + (1 | conv),   data = all_minute, control=opt, REML="FALSE")
-#nearly unidentifiable:
+
 lmer.min.tr.7 <- lmer(trans_cnt ~ LangCd + min4 + (minute | conv),   data = all_minute, REML="FALSE", control=opt)
+#.7 is nearly unidentifiable, but the real reason for not using it is that it seems likely to just be noise: 
+#some converstations can have a general upward trend while some have a general downward trend, but that doesn't mean that there's anything generalizable we can take from that
+#see plot of slopes for this model below
 lmer.min.tr.8 <- lmer(trans_cnt ~ LangCd + min4 + minute + (1 | conv),   data = all_minute, control=opt, REML="FALSE")
 
 anova(lmer.min.tr.0, lm.min.tr.null, lmer.min.tr.1, lmer.min.tr.2, lmer.min.tr.3, lmer.min.tr.4, lmer.min.tr.5, lmer.min.tr.6, lmer.min.tr.7, lmer.min.tr.8)
 
+#Use this model:
 lmer.min.tr.5.reml <- update(lmer.min.tr.5, REML="TRUE")
 summary(lmer.min.tr.5.reml)
 #McFadden pseudo R squared
@@ -49,16 +53,11 @@ ggplot(lmer.min.tr.7.slopes) +
  geom_density(aes(x=minute)) +
  theme_bw() 
 
-summary(lmer.min.tr.7.slopes$minute)
-
-
-#all_minute$bL<-paste0(all_minute$beg_cat,all_minute$LangCd)
 #Brown-Forsythe Test
-#leveneTest(trans_cnt ~ bL, data = all_minute)
 leveneTest(trans_cnt ~ LangCd, data = all_minute)
 leveneTest(trans_cnt ~ beg_cat, data = all_minute)
 leveneTest(trans_cnt ~ min4, data = all_minute)
-leveneTest(trans_cnt ~ min4, data = all_minute, center=mean)
+#They each show unequal variances, but lmer is more robust than ANOVA
 
 ##find slope of trans_cnt over time across all convs
 multlm  <- lmList(trans_cnt ~ minute | conv, data=all_minute)
@@ -93,20 +92,20 @@ lmer.min.otr.10 <- lmer(overlap_trans_ratio ~ LangCd + min1 + minute + (minute |
 lmer.min.otr.11 <- lmer(overlap_trans_ratio ~ LangCd + min1 + (minute | conv),   data = all_minute, control=opt, REML="FALSE")
 
 anova(lmer.min.otr.0, lm.min.otr.null, lmer.min.otr.1, lmer.min.otr.2, lmer.min.otr.3, lmer.min.otr.4, lmer.min.otr.5, lmer.min.otr.6, lmer.min.otr.7, lmer.min.otr.8, lmer.min.otr.9, lmer.min.otr.10, lmer.min.otr.11)
-anova(lmer.min.otr.0, lm.min.otr.null, lmer.min.otr.1, lmer.min.otr.2, lmer.min.otr.4, lmer.min.otr.11)
+anova(lmer.min.otr.0, lm.min.otr.null, lmer.min.otr.1, lmer.min.otr.2, lmer.min.otr.3, lmer.min.otr.4, lmer.min.otr.5, lmer.min.otr.8, lmer.min.otr.9)
 
-lmer.min.otr.4.reml <- update(lmer.min.otr.4, REML="TRUE")
-summary(lmer.min.otr.4.reml)
+anova(lmer.min.otr.0, lm.min.otr.null, lmer.min.otr.1, lmer.min.otr.2, lmer.min.otr.4, lmer.min.otr.5, lmer.min.otr.9)
+
+#Use this model (lowest BIC):
+lmer.min.otr.1.reml <- update(lmer.min.otr.1, REML="TRUE")
+summary(lmer.min.otr.1.reml)
 #McF
-1-(logLik(lmer.min.otr.4.reml)/logLik(lm.min.otr.null))
+1-(logLik(lmer.min.otr.1.reml)/logLik(lm.min.otr.null))
 
-hist_with_density(lmer.min.otr.4.reml)
-resqq(lmer.min.otr.4.reml)
+hist_with_density(lmer.min.otr.1.reml)
+resqq(lmer.min.otr.1.reml)
 
 leveneTest(overlap_trans_ratio ~ min1, data = all_minute)
-leveneTest(overlap_trans_ratio ~ LangCd, data = all_minute)
-with(all_minute,kruskal(overlap_trans_ratio,LangCd,group=TRUE, alpha=0.01, p.adj="holm", console=TRUE))
-with(all_minute,kruskal(overlap_trans_ratio,min1,group=TRUE, alpha=0.01, p.adj="holm", console=TRUE))
 
 ##gap duration per minute
 lmer.min.gd.0 <- lmer(gap_dur ~ (1 | conv) ,   data = all_minute, REML="FALSE")
@@ -127,31 +126,25 @@ lmer.min.gd.10 <- lmer(gap_dur ~ LangCd + min1 + minute + (minute | conv),   dat
 lmer.min.gd.11 <- lmer(gap_dur ~ LangCd + min1 + (minute | conv),   data = all_minute, control=opt, REML="FALSE")
 
 anova(lmer.min.gd.0, lm.min.gd.null, lmer.min.gd.1, lmer.min.gd.2, lmer.min.gd.3, lmer.min.gd.4, lmer.min.gd.5, lmer.min.gd.6, lmer.min.gd.7, lmer.min.gd.8, lmer.min.gd.9, lmer.min.gd.10, lmer.min.gd.11)
-anova(lmer.min.gd.0, lm.min.gd.null, lmer.min.gd.1, lmer.min.gd.2, lmer.min.gd.3, lmer.min.gd.4, lmer.min.gd.7, lmer.min.gd.9, lmer.min.gd.11)
+anova(lmer.min.gd.0, lm.min.gd.null, lmer.min.gd.1, lmer.min.gd.2, lmer.min.gd.3, lmer.min.gd.4, lmer.min.gd.5, lmer.min.gd.8, lmer.min.gd.9)
 
-lmer.min.gd.4.reml <- update(lmer.min.gd.4,REML="TRUE")
-summary(lmer.min.gd.4.reml)
-
+#Use this model (lowest BIC excluding unidentifiable models):
+lmer.min.gd.8.reml <- update(lmer.min.gd.8,REML="TRUE")
+summary(lmer.min.gd.8.reml)
 #McF
-1-(logLik(lmer.min.gd.4.reml)/logLik(lm.min.gd.null))
+1-(logLik(lmer.min.gd.8.reml)/logLik(lm.min.gd.null))
 
-hist_with_density(lmer.min.gd.4.reml)
-resqq(lmer.min.gd.4.reml)
+hist_with_density(lmer.min.gd.8.reml)
+resqq(lmer.min.gd.8.reml)
 
-lmer.min.gd.5.reml <- update(lmer.min.gd.5,REML="TRUE")
-summary(lmer.min.gd.5.reml)
-
-lmer.min.gd.reml.5.lt <- lmerTest::lmer(gap_dur ~ LangCd + min4 + (1 | conv),   data = all_minute, REML="TRUE", control=opt)
-summary(lmer.min.gd.reml.5.lt)
-
-lmer.min.gd.12 <- lmer(gap_dur ~ LangCd * min1 + (1 | conv),   data = all_minute, control=opt, REML="FALSE")
-summary(lmer.min.gd.12)
-
-anova(lmer.min.gd.5,lmer.min.gd.12)
+lmer.min.gd.reml.8.lt <- lmerTest::lmer(gap_dur ~ LangCd + min4 + minute + (1 | conv), data = all_minute, REML="TRUE", control=opt)
+summary(lmer.min.gd.reml.8.lt)
 
 leveneTest(gap_dur ~ LangCd, data = all_minute)
-leveneTest(gap_dur ~ min4, data = all_minute)
+#unequal variances by language
+leveneTest(gap_dur ~ min4, data = all_minute) 
 leveneTest(gap_dur ~ minute_f, data = all_minute)
+#equal variances by minute
 
 ##overlap duration
 lmer.min.od.0 <- lmer(overlap_dur ~ (1 | conv) ,   data = all_minute, REML="FALSE")
@@ -172,22 +165,20 @@ lmer.min.od.10 <- lmer(overlap_dur ~ LangCd + min1 + minute + (minute | conv),  
 lmer.min.od.11 <- lmer(overlap_dur ~ LangCd + min1 + (minute | conv),   data = all_minute, control=opt, REML="FALSE")
 
 anova(lmer.min.od.0, lm.min.od.null, lmer.min.od.1, lmer.min.od.2, lmer.min.od.3, lmer.min.od.4, lmer.min.od.5, lmer.min.od.6, lmer.min.od.7, lmer.min.od.8, lmer.min.od.9, lmer.min.od.10, lmer.min.od.11)
-anova(lmer.min.od.0, lm.min.od.null, lmer.min.od.1, lmer.min.od.4, lmer.min.od.11)
+anova(lmer.min.od.0, lm.min.od.null, lmer.min.od.1, lmer.min.od.2, lmer.min.od.3, lmer.min.od.4, lmer.min.od.5, lmer.min.od.6, lmer.min.od.8, lmer.min.od.9)
+anova(lmer.min.od.0, lm.min.od.null, lmer.min.od.1, lmer.min.od.2, lmer.min.od.4, lmer.min.od.5, lmer.min.od.8, lmer.min.od.9)
+anova(lmer.min.od.0, lm.min.od.null, lmer.min.od.1, lmer.min.od.4)
 
-lmer.min.od.4.reml <- update(lmer.min.od.4,REML="TRUE")
-summary(lmer.min.od.4.reml)
-
+#Use this model (lowest BIC excluding unidentifiable models):
+lmer.min.od.1.reml <- update(lmer.min.od.1,REML="TRUE")
+summary(lmer.min.od.1.reml)
 #McF
-1-(logLik(lmer.min.od.4.reml)/logLik(lm.min.od.null))
+1-(logLik(lmer.min.od.1.reml)/logLik(lm.min.od.null))
 
-hist_with_density(lmer.min.od.4.reml)
-resqq(lmer.min.od.4.reml)
-
-lmer.min.od.5.reml.lt <- lmerTest::lmer(overlap_dur ~ LangCd + min4 + (1 | conv),   data = all_minute, REML="TRUE", control=opt)
-summary(lmer.min.od.5.reml.lt)
+hist_with_density(lmer.min.od.1.reml)
+resqq(lmer.min.od.1.reml)
 
 leveneTest(overlap_dur ~ LangCd, data = all_minute)
-leveneTest(overlap_dur ~ min1, data = all_minute)
 leveneTest(overlap_dur ~ min4, data = all_minute)
 leveneTest(overlap_dur ~ minute_f, data = all_minute)
 
@@ -203,7 +194,8 @@ lm.tr.3 <- lm(trans_rate ~ subcorpus, data= conv)
 lm.tr.4 <- lm(trans_rate ~ RegionLangCd, data = conv)
 
 anova( lmer.tr.2, lm.tr.null, lmer.tr.5, lmer.tr.9, lm.tr.1, lm.tr.2, lm.tr.3, lm.tr.4)
-anova(lm.tr.null, lm.tr.1, lm.tr.2, lm.tr.3, lm.tr.4)
+anova( lmer.tr.2, lm.tr.null, lmer.tr.5, lmer.tr.9, lm.tr.2, lm.tr.3, lm.tr.4)
+
 
 #
 lm.otr.null <- lm(overlap_trans_ratio ~ 1, data = conv)
@@ -221,6 +213,7 @@ leveneTest(gap_dur_ratio ~ LangCd , data = conv)
 leveneTest(trans_rate ~ LangCd , data = conv, center=mean)
 
 #can do anova w/ trans_rate b/c variances are ok
+#use this model for trans_rate at conv level
 aov.tr <- aov(trans_rate ~ LangCd , data = conv)
 summary(aov.tr)
 resqq(aov.tr)
@@ -252,41 +245,56 @@ leveneTest(gap ~ LangCd , data = trans[trans$params=='_30_200_1.25',])
 
 with(trans[trans$params=='_30_200_1.25',],kruskal(gap,LangCd,group=TRUE, alpha=0.01, p.adj="holm", console=TRUE))
 
+skewness(conv$gap_dur_ratio)
+kurtosis(conv$gap_dur_ratio)
+
+skewness(conv$overlap_dur_ratio)
+kurtosis(conv$overlap_dur_ratio)
+
+skewness(conv$overlap_trans_ratio)
+kurtosis(conv$overlap_trans_ratio)
+
+skewness(conv$trans_rate)
+kurtosis(conv$trans_rate)
+
 ##ended convs fnl
-leveneTest(trans_cnt ~ LangCd, data = end_min)
-leveneTest(trans_cnt ~ fnl2way, data = end_min)
-leveneTest(trans_cnt ~ fnl3way, data = end_min)
+#leveneTest(trans_cnt ~ LangCd, data = end_min)
+#leveneTest(trans_cnt ~ fnl2way, data = end_min)
+#leveneTest(trans_cnt ~ fnl3way, data = end_min)
 
-lmer.end.0 <- lmer(trans_cnt ~ (1 | conv) ,   data = end_min, REML="FALSE")
-lm.end.null<- lm(trans_cnt ~ 1, data=end_min)
-lm.end.1   <- lm(trans_cnt ~ min_from_end, data=end_min)
-lm.end.2   <- lm(trans_cnt ~ fnl3way, data=end_min)
-lmer.end.1 <- lmer(trans_cnt ~ min_from_end + (1 | conv),   data = end_min, REML="FALSE")
-lmer.end.2 <- lmer(trans_cnt ~ fnl2way + (1 | conv),   data = end_min, control=opt, REML="FALSE")
-lmer.end.3 <- lmer(trans_cnt ~ fnl3way + (1 | conv),   data = end_min, control=opt, REML="FALSE")
-lmer.end.4 <- lmer(trans_cnt ~ fnl2way + (fnl2way | conv),   data = end_min, control=opt, REML="FALSE")
-lmer.end.5 <- lmer(trans_cnt ~ fnl3way + (fnl3way | conv),   data = end_min, control=opt, REML="FALSE")
+#lmer.end.0 <- lmer(trans_cnt ~ (1 | conv) ,   data = end_min, REML="FALSE")
+#lm.end.null<- lm(trans_cnt ~ 1, data=end_min)
+#lm.end.1   <- lm(trans_cnt ~ min_from_end, data=end_min)
+#lm.end.2   <- lm(trans_cnt ~ fnl3way, data=end_min)
+#lmer.end.1 <- lmer(trans_cnt ~ min_from_end + (1 | conv),   data = end_min, REML="FALSE")
+#lmer.end.2 <- lmer(trans_cnt ~ fnl2way + (1 | conv),   data = end_min, control=opt, REML="FALSE")
+#lmer.end.3 <- lmer(trans_cnt ~ fnl3way + (1 | conv),   data = end_min, control=opt, REML="FALSE")
+#lmer.end.4 <- lmer(trans_cnt ~ fnl2way + (fnl2way | conv),   data = end_min, control=opt, REML="FALSE")
+#lmer.end.5 <- lmer(trans_cnt ~ fnl3way + (fnl3way | conv),   data = end_min, control=opt, REML="FALSE")
+#lmer.end.6 <- lmer(trans_cnt ~ LangCd + fnl3way + (1 | conv),   data = end_min, control=opt, REML="FALSE")
 
-anova(lmer.end.0, lm.end.null, lm.end.1, lm.end.2, lmer.end.1,lmer.end.2,lmer.end.3,lmer.end.4,lmer.end.5)
+#anova(lmer.end.0, lm.end.null, lm.end.1, lm.end.2, lmer.end.1,lmer.end.2,lmer.end.3,lmer.end.4,lmer.end.5, lmer.end.6)
+#anova(lmer.end.6, lmer.end.3, lmer.end.5, lmer.end.2, lm.end.null, lmer.end.0)
 
-summary(lmer.end.3)
-resqq(lmer.end.3)
-hist_with_density(lmer.end.3)
+#hist_with_density(lmer.end.3)
 
-#beg_fnl isn't weighted evenly, but let's try this anyway
+#beg_fnl
 leveneTest(trans_rate ~ LangCd, data = beg_fnl)
 leveneTest(trans_rate ~ begfnl2, data = beg_fnl)
 
+lm.bf.null<- lm(trans_rate *60~ 1, data=beg_fnl)
 lm.bf.2   <- lm(trans_rate *60~ begfnl2, data=beg_fnl)
 lm.bf.3   <- lm(trans_rate *60~ begfnl2 + LangCd, data=beg_fnl)
 lmer.bf.1 <- lmer(trans_rate *60~ begfnl2 + (1 | conv), data=beg_fnl, REML="FALSE")
 lmer.bf.2 <- lmer(trans_rate *60~ LangCd + (1 | conv), data=beg_fnl, REML="FALSE")
 lmer.bf.3 <- lmer(trans_rate *60 ~ LangCd + begfnl2 + (1 | conv), data=beg_fnl, REML="FALSE")
 
-anova(lmer.bf.1, lm.bf.2, lm.bf.3, lmer.bf.2, lmer.bf.3)
+anova(lmer.bf.1, lm.bf.2, lm.bf.3, lmer.bf.2, lmer.bf.3, lm.bf.null)
 
 lmer.bf.3.reml <- update(lmer.bf.3, REML="TRUE")
 summary(lmer.bf.3.reml)
+1-(logLik(lmer.bf.3.reml)/logLik(lm.bf.null))
+
 resqq(lmer.bf.3.reml)
 
 ##region

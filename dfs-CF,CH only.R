@@ -9,6 +9,8 @@ same_pitch <- read.csv("~/synced/Dissertation/Corpus/same_pitch.csv", header=TRU
 
 sound<-read.csv("~/synced/Dissertation/Corpus/sound_times.csv", header=TRUE)
 sst  <-read.csv("~/synced/Dissertation/Corpus/sound_silence_turn.csv", header=TRUE)
+#single-speaker segments:
+sss  <-read.csv("~/synced/Dissertation/Corpus/sss.csv", header=TRUE)
 
 #note:
 #Across all of CH/CF, there are a small number of conversation numbers in both corpora. 
@@ -103,12 +105,19 @@ ig <- sqldf("
  )
 ")
 
-#make this is a separate df to avoid having to nest another table in the next query
+#make this is a separate df to avoid having to nest another table in the creation of long_gap_conv
 igmax <- sqldf("
  select subcorpus, conv, max(intraturn_gap) ig_max
   from ig
   group by subcorpus, conv
 ")
+
+#for updating single-speaker segments
+long_ig<-sqldf('
+ select *, intraturn_gap - 3.5 ig_to_subtract   
+  from ig 
+  where intraturn_gap > 3.5
+')
 
 noisy_conv <- sqldf("
  select *
@@ -182,7 +191,7 @@ noisy_conv <- sqldf("
         (subcorpus='CGNvl-cs' and conv = 'fv901162') or
         (subcorpus='CFeng-s' and conv = '6295') or
         (subcorpus='CGNnl-cs' and conv = 'fn008013') or
-        (subcorpus='CHzho' and conv = '975') or
+        (subcorpus='CHzho' and conv = '0975') or
         (subcorpus='CGNvl-cs' and conv = 'fv701054') or
         (subcorpus='CHdeu' and conv = '4828') or
         (subcorpus='CGNnl-cs' and conv = 'fn008131') or
@@ -571,6 +580,7 @@ ig<-sqldf("
   where ig.begin_sound < conv.conv_length
 ")
 ig$params <- as.factor(ig$params)
+ig$conv <- as.factor(ig$conv)
 
 #all gaps together, excluding those less than the minimum intraturn gap
 all_gaps<-sqldf("
@@ -596,6 +606,7 @@ all_gaps$LangCd <- as.factor(all_gaps$LangCd)
 all_gaps$params <- as.factor(all_gaps$params)
 all_gaps$Corpus <- as.factor(all_gaps$Corpus)
 
+#reorder languages by pct intra
 all_gaps_sum<-sqldf("
  select *, sum(gap) over (partition by LangCd) tot_gap
  from
@@ -606,7 +617,6 @@ all_gaps_sum<-sqldf("
    group by LangCd, type
  )
 ")
-#reorder languages by pct intra
 df<-sqldf("
  select LangCd, gap/tot_gap
   from all_gaps_sum
@@ -625,6 +635,40 @@ all_minute_long<-sqldf("
 all_minute_long$LangCd <- as.factor(all_minute_long$LangCd)
 all_minute_long$Type <- as.factor(all_minute_long$Type)
 
+##update single-speaker segment data
+#update first segment to beginning of first sound and limit to included conversations only
+sss2 <- sqldf('
+ select sss.subcorpus, g.LangCd, sss.params, sss.conv, sss.ch, 
+    case when sss.begin = 0
+         then c.min_begin
+         else sss.begin
+    end begin,
+    sss.end
+  from sss
+   join conv_sound c
+    on sss.subcorpus = c.subcorpus and sss.params = c.params and sss.conv = c.conv
+   join good_conv g
+    on sss.subcorpus = g.subcorpus and sss.params = g.params and sss.conv = g.conv
+')
+
+sss2$tm <- round(sss2$end - sss2$begin,3)
+
+#remove IGs > 3.5s
+sss3<-sqldf('
+ select s.subcorpus, s.LangCd, s.params, s.conv, s.ch, s.begin, s.end, s.tm, 
+   case when sum(i.ig_to_subtract) is null
+        then s.tm
+        else round(s.tm - sum(i.ig_to_subtract),3)
+   end tm2
+  from sss2 s
+  left join long_ig i 
+   on i.subcorpus = s.subcorpus and i.params = s.params and i.conv = s.conv and i.ch = s.ch and 
+    i.begin_sound between s.begin and s.end
+  group by s.subcorpus, s.params, s.conv, s.begin, s.ch, s.end, s.tm
+')
+
+nrow(sss3[sss3$tm!=sss3$tm2,])
+sss<-sss3
 
 ##cleanup
 rm(df)
@@ -634,3 +678,5 @@ rm(tmpdf2)
 rm(same_pitch)
 rm(all_conv)
 rm(igmax)
+rm(sss2)
+rm(sss3)
