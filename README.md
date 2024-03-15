@@ -1,5 +1,5 @@
 # scripts-conversation-acoustic-analysis
-code to analyze audio files of converations
+Scripts to analyze audio files of converations
 
 Code
 
