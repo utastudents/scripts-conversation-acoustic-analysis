@@ -1,12 +1,20 @@
 # scripts-conversation-acoustic-analysis
 Scripts to analyze audio files of conversations
+All code created on Windows 11 and provided for reference. Changes will likely be required to run the code on your system.
 
+Script types
+    .py    Python(3.11.2) script
+    .sql   SQL script (I used SQL Server)
+    .praat Praat(6.3.03) script
+    .txt   text to run from command line
+    .R     R(4.3.1) script
+    
 Code
 
     scrape_CF.py                download the wav files from the CallFriend corpus
     scrape_CH.py                download the wav files from the CallHome corpus
     code to create same_pitch.csv
-        c_pitch.sql             create table in a relational database (I used SQL Server)
+        c_pitch.sql             create table in a relational database 
         c_pitch.xml             bcp format file
         pitches.praat           extract pitch for each channel of each file
         pitch.py                create a class for pitch data
