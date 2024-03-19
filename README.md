@@ -3,6 +3,7 @@ Scripts to analyze audio files of conversations
 All code created on Windows 11 and provided for reference. Changes will likely be required to run the code on your system.
 
 Script types
+
     .py    Python(3.11.2) script
     .sql   SQL script (I used SQL Server)
     .praat Praat(6.3.03) script
