@@ -28,6 +28,8 @@ Code
             textgrids_to_csv    pull the sound times from the Praat textgrids into sound_times_csv
             find_turn_begin     analyze the sound times for transitions and create files for the turn times on each channel and for transitions 
             trans_textgrids     create textgrids of transitions to help explain the data
+        Example call: 
+            python single_speaker_segments.py c:\temp\codes.csv c:\temp\params.xlsx c:\temp\sound_times.csv c:\temp\sound_silence_turn.csv c:\temp\trans.csv c:\temp\sss.csv
     silences-param.praat        create sound/silence textgrid for each channel for a file
     dfs-CF,CH only.R            create data frames from the various data files
     graph functions.R           graph functions to evaluate models
