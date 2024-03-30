@@ -1,5 +1,6 @@
 # scripts-conversation-acoustic-analysis
-Scripts to analyze audio files of conversations
+Scripts to analyze audio files of conversations.
+
 All code created on Windows 11 and provided for reference. Changes will likely be required to run the code on your system.
 
 Script types
